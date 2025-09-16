@@ -1,43 +1,58 @@
 @startuml
+
 class User {
-  -Long id
-  -String username
-  -String email
-  -String passwordHash
-  -LocalDateTime createdAt
-  +User(String username,String email, String passwordHash)
-  +getName(): String
-  +getEmail() : String
-  +getPasswordHash(): String
-  +getCreatedAt():LocalDateTime
-  +getId(): Long
+  - id: Long
+  - username: String
+  - email: String
+  - passwordHash: String
+  - createdAt: LocalDateTime
+  + User(username: String, email: String, passwordHash: String)
+  + getName(): String
+  + getEmail(): String
+  + getPasswordHash(): String
+  + getCreatedAt(): LocalDateTime
+  + getId(): Long
 }
 
-class Message{
-  -Long id
-  -String text
-  -User sender
-  -DateTime timestamp
-  -ChatRoom room
-  +Message(String text, User sender)
-  +edit(String newText):void
-  +delete():void
-  +getId():Long
-  +getText():String
-  +getSender():User
-  +getTimestamp():LocalDateTime
-  +getRoom():ChatRoom
+class Message {
+  - id: Long
+  - text: String
+  - sender: User
+  - timestamp: LocalDateTime
+  - room: ChatRoom
+  + Message(text: String, sender: User)
+  + edit(newText: String): void
+  + delete(): void
+  + getId(): Long
+  + getText(): String
+  + getSender(): User
+  + getTimestamp(): LocalDateTime
+  + getRoom(): ChatRoom
 }
 
-class ChatRoom{
--Long id
--String name
--LocalDateTime createdAt
--User createdBy
--State isActive
--LocalDateTime expiryDate
-+getId():Long
-
+class ChatRoom {
+  - id: Long
+  - name: String
+  - createdAt: LocalDateTime
+  - createdBy: User
+  - isActive: State
+  - expiryDate: LocalDateTime
+  + getId(): Long
 }
+
+enum State {
+ACTIVE,
+READ_ONLY,
+EXPIRED
+}
+
+ChatRoom *-- "many messages" Message
+
+User o-- "many chat rooms" ChatRoom : createdBy
+
+User -- "many messages" Message : sends
+Message --> "1 sender" User
+Message --> "1 room" ChatRoom
+ChatRoom --> "1 creator" User
 
 @enduml
