@@ -1,0 +1,43 @@
+@startuml
+class User {
+  -Long id
+  -String username
+  -String email
+  -String passwordHash
+  -LocalDateTime createdAt
+  +User(String username,String email, String passwordHash)
+  +getName(): String
+  +getEmail() : String
+  +getPasswordHash(): String
+  +getCreatedAt():LocalDateTime
+  +getId(): Long
+}
+
+class Message{
+  -Long id
+  -String text
+  -User sender
+  -DateTime timestamp
+  -ChatRoom room
+  +Message(String text, User sender)
+  +edit(String newText):void
+  +delete():void
+  +getId():Long
+  +getText():String
+  +getSender():User
+  +getTimestamp():LocalDateTime
+  +getRoom():ChatRoom
+}
+
+class ChatRoom{
+-Long id
+-String name
+-LocalDateTime createdAt
+-User createdBy
+-State isActive
+-LocalDateTime expiryDate
++getId():Long
+
+}
+
+@enduml
