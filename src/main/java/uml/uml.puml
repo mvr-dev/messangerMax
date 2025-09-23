@@ -36,7 +36,7 @@ class ChatRoom {
   - createdAt: LocalDateTime
   - createdBy: User
   - isActive: State
-  - expiryDate: LocalDateTime
+  - expiryDate: LocalDateTime @nullable
   + getId(): Long
 }
 
@@ -51,11 +51,12 @@ ADMIN,
 USER
 }
 
+
 ChatRoom *-- "many messages" Message
 
 User o-- "many chat rooms" ChatRoom : createdBy
 
-User -- "many messages" Message : sends
+User -- "many messages" Message
 Message --> "1 sender" User
 Message --> "1 room" ChatRoom
 ChatRoom --> "1 creator" User
