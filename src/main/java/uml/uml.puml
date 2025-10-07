@@ -62,13 +62,13 @@ class Membership {
 }
 
 
-ChatRoom *-- "many messages" Message
 
-User o-- "many chat rooms" ChatRoom : createdBy
-
-User -- "many messages" Message
-Message --> "1 sender" User
-Message --> "1 room" ChatRoom
-ChatRoom --> "1 creator" User
+User "1" -- "*" Message
+ChatRoom "1" *-- "*" Message
+Message --> "1" User
+Message --> "1" ChatRoom
+ChatRoom --> "1" User
+User "1" -- "*" Membership
+Membership "*" -- "1" ChatRoom
 
 @enduml
