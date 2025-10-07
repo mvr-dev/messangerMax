@@ -51,6 +51,16 @@ ADMIN,
 USER
 }
 
+class Membership {
+    - chatRoom : ChatRoom
+    - user : User
+    - role : Role
+    + Membership(ChatRoom chatRoom, User user, Role role)
+    + getChatRoom() : ChatRoom
+    + getUser() : User
+    + getRole() : Role
+}
+
 
 ChatRoom *-- "many messages" Message
 
