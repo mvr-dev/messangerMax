@@ -1,0 +1,258 @@
+@startuml MessengerArchitecture
+
+package "Entities" {
+  class User {
+    - id: Long
+    - username: String
+    - email: String
+    - passwordHash: String
+    - createdAt: LocalDateTime
+    + User()
+    + User(username, email, passwordHash)
+  }
+
+  class Message {
+    - id: Long
+    - text: String
+    - sender: User
+    - timestamp: LocalDateTime
+    - room: ChatRoom
+    + Message()
+    + Message(text, sender, room)
+    + edit(newText)
+    + delete()
+  }
+
+  class ChatRoom {
+    - id: Long
+    - name: String
+    - description: String
+    - createdAt: LocalDateTime
+    - createdBy: User
+    - state: State
+    - expiryDate: LocalDateTime
+    + ChatRoom()
+    + ChatRoom(name, createdBy)
+  }
+
+  class Membership {
+    - id: Long
+    - chatRoom: ChatRoom
+    - user: User
+    - role: Role
+    - joinedAt: LocalDateTime
+    + Membership()
+    + Membership(chatRoom, user, role)
+  }
+
+  enum State {
+    ACTIVE
+    READ_ONLY
+    EXPIRED
+    ARCHIVED
+  }
+
+  enum Role {
+    ADMIN
+    MODERATOR
+    USER
+    GUEST
+  }
+}
+
+package "DTOs" {
+  class UserDTO {
+    - id: Long
+    - username: String
+    - email: String
+    - createdAt: LocalDateTime
+    + UserDTO()
+    + UserDTO(user)
+  }
+
+  class MessageDTO {
+    - id: Long
+    - text: String
+    - sender: UserDTO
+    - chatRoomId: Long
+    - timestamp: LocalDateTime
+    + MessageDTO()
+    + MessageDTO(message)
+  }
+
+  class ChatRoomDTO {
+    - id: Long
+    - name: String
+    - description: String
+    - createdBy: UserDTO
+    - state: State
+    + ChatRoomDTO()
+    + ChatRoomDTO(chatRoom)
+  }
+
+  class CreateMessageRequest {
+    - text: String
+    - chatRoomId: Long
+    + CreateMessageRequest()
+  }
+
+  class LoginRequest {
+    - username: String
+    - password: String
+    + LoginRequest()
+  }
+
+  class AuthResponse {
+    - token: String
+    - user: UserDTO
+    + AuthResponse()
+  }
+}
+
+package "Repositories" {
+  interface UserRepository {
+    + findByUsername(username)
+    + findByEmail(email)
+    + existsByUsername(username)
+    + existsByEmail(email)
+  }
+
+  interface MessageRepository {
+    + findByRoomIdOrderByTimestampDesc(roomId)
+    + findBySenderIdOrderByTimestampDesc(userId)
+    + findByRoomIdAndDeletedFalse(roomId)
+  }
+
+  interface ChatRoomRepository {
+    + findByNameContainingIgnoreCase(name)
+    + findByState(state)
+    + findByCreatedById(userId)
+  }
+
+  interface MembershipRepository {
+    + findByUserId(userId)
+    + findByChatRoomId(chatRoomId)
+    + findByUserIdAndChatRoomId(userId, chatRoomId)
+  }
+}
+
+package "Services" {
+  class UserService {
+    - userRepository: UserRepository
+    - passwordEncoder: PasswordEncoder
+    + createUser(user)
+    + findByUsername(username)
+    + findById(id)
+    + validateUserCredentials(username, password)
+  }
+
+  class MessageService {
+    - messageRepository: MessageRepository
+    - userService: UserService
+    - chatRoomService: ChatRoomService
+    + sendMessage(text, senderId, roomId)
+    + editMessage(messageId, newText, userId)
+    + deleteMessage(messageId, userId)
+  }
+
+  class ChatRoomService {
+    - chatRoomRepository: ChatRoomRepository
+    - membershipRepository: MembershipRepository
+    + createChatRoom(name, description, createdBy)
+    + changeRoomState(roomId, state)
+    + addMember(roomId, user, role)
+  }
+
+  class AuthService {
+    - userService: UserService
+    - jwtUtil: JWTUtil
+    - passwordEncoder: PasswordEncoder
+    + register(user)
+    + login(username, password)
+    + validateToken(token)
+  }
+}
+
+package "Controllers" {
+  class UserController {
+    - userService: UserService
+    + getUserById(id)
+    + getCurrentUser()
+    + updateUser(userDTO)
+  }
+
+  class MessageController {
+    - messageService: MessageService
+    + sendMessage(request)
+    + editMessage(messageId, request)
+    + getRoomMessages(roomId)
+  }
+
+  class ChatRoomController {
+    - chatRoomService: ChatRoomService
+    + createChatRoom(chatRoomDTO)
+    + getChatRoom(id)
+    + getUserChatRooms()
+  }
+
+  class AuthController {
+    - authService: AuthService
+    + register(loginRequest)
+    + login(loginRequest)
+  }
+}
+
+
+User "1" -- "*" Message : sends
+ChatRoom "1" -- "*" Message : contains
+User "1" -- "*" Membership : has
+ChatRoom "1" -- "*" Membership : has
+User ||--o{ ChatRoom : creates
+
+
+UserRepository ..> User : manages
+MessageRepository ..> Message : manages
+ChatRoomRepository ..> ChatRoom : manages
+MembershipRepository ..> Membership : manages
+
+
+UserService --> UserRepository
+MessageService --> MessageRepository
+MessageService --> UserService
+MessageService --> ChatRoomService
+ChatRoomService --> ChatRoomRepository
+ChatRoomService --> MembershipRepository
+AuthService --> UserService
+
+
+UserController --> UserService
+MessageController --> MessageService
+ChatRoomController --> ChatRoomService
+AuthController --> AuthService
+
+
+UserController --> UserDTO : uses
+MessageController --> MessageDTO : uses
+MessageController --> CreateMessageRequest : uses
+ChatRoomController --> ChatRoomDTO : uses
+AuthController --> LoginRequest : uses
+AuthController --> AuthResponse : uses
+
+
+User ..> UserDTO : converts to
+Message ..> MessageDTO : converts to
+ChatRoom ..> ChatRoomDTO : converts to
+
+
+UserService ..> User : returns
+MessageService ..> Message : returns
+ChatRoomService ..> ChatRoom : returns
+AuthService ..> AuthResponse : returns
+
+
+UserController ..> UserDTO : returns
+MessageController ..> MessageDTO : returns
+ChatRoomController ..> ChatRoomDTO : returns
+AuthController ..> AuthResponse : returns
+
+@enduml

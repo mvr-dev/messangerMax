@@ -1,0 +1,27 @@
+@startuml User
+
+class User {
+  - id: Long
+  - username: String
+  - email: String
+  - passwordHash: String
+  - createdAt: LocalDateTime
+  - messages: List<Message>
+  - memberships: List<Membership>
+  - createdRooms: List<ChatRoom>
+  + User()
+  + User(username: String, email: String, passwordHash: String)
+  + getId(): Long
+  + getUsername(): String
+  + setUsername(username: String): void
+  + getEmail(): String
+  + setEmail(email: String): void
+  + getPasswordHash(): String
+  + setPasswordHash(passwordHash: String): void
+  + getCreatedAt(): LocalDateTime
+  + getMessages(): List<Message>
+  + getMemberships(): List<Membership>
+  + getCreatedRooms(): List<ChatRoom>
+}
+
+@enduml

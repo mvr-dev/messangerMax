@@ -1,0 +1,32 @@
+@startuml Repositories
+
+interface UserRepository extends JpaRepository<User, Long> {
+  + findByUsername(username: String): Optional<User>
+  + findByEmail(email: String): Optional<User>
+  + existsByUsername(username: String): boolean
+  + existsByEmail(email: String): boolean
+}
+
+interface MessageRepository extends JpaRepository<Message, Long> {
+  + findByRoomIdOrderByTimestampDesc(roomId: Long): List<Message>
+  + findBySenderIdOrderByTimestampDesc(userId: Long): List<Message>
+  + findByRoomIdAndDeletedFalseOrderByTimestampAsc(roomId: Long): List<Message>
+  + countByRoomId(roomId: Long): Long
+}
+
+interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+  + findByNameContainingIgnoreCase(name: String): List<ChatRoom>
+  + findByState(state: State): List<ChatRoom>
+  + findByCreatedById(userId: Long): List<ChatRoom>
+  + findByExpiryDateBeforeAndStateNot(date: LocalDateTime, state: State): List<ChatRoom>
+}
+
+interface MembershipRepository extends JpaRepository<Membership, Long> {
+  + findByUserId(userId: Long): List<Membership>
+  + findByChatRoomId(chatRoomId: Long): List<Membership>
+  + findByUserIdAndChatRoomId(userId: Long, chatRoomId: Long): Optional<Membership>
+  + existsByUserIdAndChatRoomId(userId: Long, chatRoomId: Long): boolean
+  + countByChatRoomId(chatRoomId: Long): Long
+}
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml Enums
+
+enum State {
+  ACTIVE
+  READ_ONLY
+  EXPIRED
+  ARCHIVED
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  USER
+  GUEST
+}
+
+@enduml

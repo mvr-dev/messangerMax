@@ -1,0 +1,60 @@
+@startuml DTOs
+
+class UserDTO {
+  - Long id
+  - String username
+  - String email
+  - LocalDateTime createdAt
+  + UserDTO()
+  + UserDTO(user: User)
+  // getters and setters
+}
+
+class MessageDTO {
+  - Long id
+  - String text
+  - UserDTO sender
+  - Long chatRoomId
+  - LocalDateTime timestamp
+  - boolean edited
+  - boolean deleted
+  + MessageDTO()
+  + MessageDTO(message: Message)
+  // getters and setters
+}
+
+class ChatRoomDTO {
+  - Long id
+  - String name
+  - String description
+  - UserDTO createdBy
+  - State state
+  - LocalDateTime createdAt
+  - int memberCount
+  + ChatRoomDTO()
+  + ChatRoomDTO(chatRoom: ChatRoom)
+  // getters and setters
+}
+
+class CreateMessageRequest {
+  - String text
+  - Long chatRoomId
+  + CreateMessageRequest()
+  // getters and setters
+}
+
+class LoginRequest {
+  - String username
+  - String password
+  + LoginRequest()
+  // getters and setters
+}
+
+class AuthResponse {
+  - String token
+  - UserDTO user
+  + AuthResponse()
+  // getters and setters
+}
+
+@enduml

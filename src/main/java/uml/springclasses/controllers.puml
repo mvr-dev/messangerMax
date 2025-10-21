@@ -1,0 +1,41 @@
+@startuml Controllers
+
+class UserController {
+  - UserService userService
+  + UserController(userService: UserService)
+  + getUserById(id: Long): ResponseEntity<UserDTO>
+  + getCurrentUser(): ResponseEntity<UserDTO>
+  + updateUser(userDTO: UserDTO): ResponseEntity<UserDTO>
+  + deleteUser(): ResponseEntity<Void>
+}
+
+class MessageController {
+  - MessageService messageService
+  + MessageController(messageService: MessageService)
+  + sendMessage(request: CreateMessageRequest): ResponseEntity<MessageDTO>
+  + editMessage(messageId: Long, request: CreateMessageRequest): ResponseEntity<MessageDTO>
+  + deleteMessage(messageId: Long): ResponseEntity<Void>
+  + getRoomMessages(roomId: Long): ResponseEntity<List<MessageDTO>>
+  + getUserMessages(): ResponseEntity<List<MessageDTO>>
+}
+
+class ChatRoomController {
+  - ChatRoomService chatRoomService
+  + ChatRoomController(chatRoomService: ChatRoomService)
+  + createChatRoom(chatRoomDTO: ChatRoomDTO): ResponseEntity<ChatRoomDTO>
+  + getChatRoom(id: Long): ResponseEntity<ChatRoomDTO>
+  + getUserChatRooms(): ResponseEntity<List<ChatRoomDTO>>
+  + searchChatRooms(name: String): ResponseEntity<List<ChatRoomDTO>>
+  + updateChatRoom(id: Long, chatRoomDTO: ChatRoomDTO): ResponseEntity<ChatRoomDTO>
+  + addMember(roomId: Long, userId: Long, role: Role): ResponseEntity<Void>
+}
+
+class AuthController {
+  - AuthService authService
+  + AuthController(authService: AuthService)
+  + register(loginRequest: LoginRequest): ResponseEntity<AuthResponse>
+  + login(loginRequest: LoginRequest): ResponseEntity<AuthResponse>
+  + refreshToken(): ResponseEntity<AuthResponse>
+}
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml DataFlow
+
+actor User as U
+participant "AuthController" as AC
+participant "AuthService" as AS
+participant "UserService" as US
+participant "UserRepository" as UR
+participant "MessageController" as MC
+participant "MessageService" as MS
+participant "MessageRepository" as MR
+participant "ChatRoomController" as CC
+participant "ChatRoomService" as CS
+participant "ChatRoomRepository" as CR
+
+U -> AC: POST /api/auth/register\n(LoginRequest)
+AC -> AS: register(user)
+AS -> US: createUser(user)
+US -> UR: save(user)
+UR --> US: User
+US --> AS: User
+AS --> AC: AuthResponse
+AC --> U: AuthResponse
+
+U -> AC: POST /api/auth/login\n(LoginRequest)
+AC -> AS: login(username, password)
+AS -> US: validateUserCredentials(username, password)
+US -> UR: findByUsername(username)
+UR --> US: User
+US --> AS: boolean
+AS --> AC: AuthResponse
+AC --> U: AuthResponse
+
+U -> CC: POST /api/chatrooms\n(ChatRoomDTO)
+CC -> CS: createChatRoom(name, description, user)
+CS -> CR: save(chatRoom)
+CR --> CS: ChatRoom
+CS --> CC: ChatRoom
+CC --> U: ChatRoomDTO
+
+U -> MC: POST /api/messages\n(CreateMessageRequest)
+MC -> MS: sendMessage(text, userId, roomId)
+MS -> US: findById(userId)
+US --> MS: User
+MS -> CS: findById(roomId)
+CS --> MS: ChatRoom
+MS -> MR: save(message)
+MR --> MS: Message
+MS --> MC: Message
+MC --> U: MessageDTO
+
+U -> MC: GET /api/messages/room/{roomId}
+MC -> MS: getMessagesByRoom(roomId)
+MS -> MR: findByRoomIdOrderByTimestampDesc(roomId)
+MR --> MS: List<Message>
+MS --> MC: List<Message>
+MC --> U: List<MessageDTO>
+
+U -> CC: GET /api/chatrooms/user
+CC -> CS: getUserRooms(userId)
+CS -> CR: findByCreatedById(userId)
+CR --> CS: List<ChatRoom>
+CS --> CC: List<ChatRoom>
+CC --> U: List<ChatRoomDTO>
+
+@enduml

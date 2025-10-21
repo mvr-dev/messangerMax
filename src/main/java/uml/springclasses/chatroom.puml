@@ -1,0 +1,31 @@
+@startuml ChatRoom
+
+class ChatRoom {
+  - id: Long
+  - name: String
+  - description: String
+  - createdAt: LocalDateTime
+  - createdBy: User
+  - state: State
+  - expiryDate: LocalDateTime
+  - messages: List<Message>
+  - memberships: List<Membership>
+  + ChatRoom()
+  + ChatRoom(name: String, createdBy: User)
+  + getId(): Long
+  + getName(): String
+  + setName(name: String): void
+  + getDescription(): String
+  + setDescription(description: String): void
+  + getCreatedAt(): LocalDateTime
+  + getCreatedBy(): User
+  + setCreatedBy(createdBy: User): void
+  + getState(): State
+  + setState(state: State): void
+  + getExpiryDate(): LocalDateTime
+  + setExpiryDate(expiryDate: LocalDateTime): void
+  + getMessages(): List<Message>
+  + getMemberships(): List<Membership>
+}
+
+@enduml

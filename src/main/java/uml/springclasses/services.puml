@@ -1,0 +1,55 @@
+@startuml Services
+
+class UserService {
+  - UserRepository userRepository
+  - PasswordEncoder passwordEncoder
+  + UserService(userRepository: UserRepository, passwordEncoder: PasswordEncoder)
+  + createUser(user: User): User
+  + findByUsername(username: String): Optional<User>
+  + findByEmail(email: String): Optional<User>
+  + findById(id: Long): Optional<User>
+  + updateUser(user: User): User
+  + deleteUser(id: Long): void
+  + validateUserCredentials(username: String, password: String): boolean
+}
+
+class MessageService {
+  - MessageRepository messageRepository
+  - UserService userService
+  - ChatRoomService chatRoomService
+  + MessageService(messageRepository: MessageRepository, userService: UserService, chatRoomService: ChatRoomService)
+  + sendMessage(text: String, senderId: Long, roomId: Long): Message
+  + editMessage(messageId: Long, newText: String, userId: Long): Message
+  + deleteMessage(messageId: Long, userId: Long): Message
+  + getMessageById(messageId: Long): Optional<Message>
+  + getMessagesByRoom(roomId: Long): List<Message>
+  + getMessagesByUser(userId: Long): List<Message>
+}
+
+class ChatRoomService {
+  - ChatRoomRepository chatRoomRepository
+  - MembershipRepository membershipRepository
+  + ChatRoomService(chatRoomRepository: ChatRoomRepository, membershipRepository: MembershipRepository)
+  + createChatRoom(name: String, description: String, createdBy: User): ChatRoom
+  + updateChatRoom(chatRoom: ChatRoom): ChatRoom
+  + changeRoomState(roomId: Long, state: State): ChatRoom
+  + findById(roomId: Long): Optional<ChatRoom>
+  + findByName(name: String): List<ChatRoom>
+  + getUserRooms(userId: Long): List<ChatRoom>
+  + deleteChatRoom(roomId: Long): void
+  + addMember(roomId: Long, user: User, role: Role): Membership
+  + removeMember(roomId: Long, userId: Long): void
+}
+
+class AuthService {
+  - UserService userService
+  - JWTUtil jwtUtil
+  - PasswordEncoder passwordEncoder
+  + AuthService(userService: UserService, jwtUtil: JWTUtil, passwordEncoder: PasswordEncoder)
+  + register(user: User): AuthResponse
+  + login(username: String, password: String): AuthResponse
+  + validateToken(token: String): boolean
+  + getUsernameFromToken(token: String): String
+}
+
+@enduml

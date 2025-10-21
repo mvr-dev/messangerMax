@@ -1,0 +1,21 @@
+@startuml Membership
+
+class Membership {
+  - id: Long
+  - chatRoom: ChatRoom
+  - user: User
+  - role: Role
+  - joinedAt: LocalDateTime
+  + Membership()
+  + Membership(chatRoom: ChatRoom, user: User, role: Role)
+  + getId(): Long
+  + getChatRoom(): ChatRoom
+  + setChatRoom(chatRoom: ChatRoom): void
+  + getUser(): User
+  + setUser(user: User): void
+  + getRole(): Role
+  + setRole(role: Role): void
+  + getJoinedAt(): LocalDateTime
+}
+
+@enduml

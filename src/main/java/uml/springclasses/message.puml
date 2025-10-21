@@ -1,0 +1,27 @@
+@startuml Message
+
+class Message {
+  - id: Long
+  - text: String
+  - sender: User
+  - timestamp: LocalDateTime
+  - room: ChatRoom
+  - edited: boolean
+  - deleted: boolean
+  + Message()
+  + Message(text: String, sender: User, room: ChatRoom)
+  + edit(newText: String): void
+  + delete(): void
+  + getId(): Long
+  + getText(): String
+  + setText(text: String): void
+  + getSender(): User
+  + setSender(sender: User): void
+  + getTimestamp(): LocalDateTime
+  + getRoom(): ChatRoom
+  + setRoom(room: ChatRoom): void
+  + isEdited(): boolean
+  + isDeleted(): boolean
+}
+
+@enduml
