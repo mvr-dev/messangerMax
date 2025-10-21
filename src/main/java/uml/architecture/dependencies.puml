@@ -48,15 +48,5 @@ package "Business Logic" {
   [UserService] --> [PasswordEncoder]
 }
 
-note top of [MessageService]
-  Depends on UserService and
-  ChatRoomService for validation
-  and business rules
-end note
-
-note right of [ChatRoomService]
-  Manages room memberships
-  and access control
-end note
 
 @enduml
