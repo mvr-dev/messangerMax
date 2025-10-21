@@ -1,0 +1,74 @@
+@startuml
+
+class User {
+  - id: Long
+  - username: String
+  - email: String
+  - passwordHash: String
+  - createdAt: LocalDateTime
+  + User(username: String, email: String, passwordHash: String)
+  + getName(): String
+  + getEmail(): String
+  + getPasswordHash(): String
+  + getCreatedAt(): LocalDateTime
+  + getId(): Long
+}
+
+class Message {
+  - id: Long
+  - text: String
+  - sender: User
+  - timestamp: LocalDateTime
+  - room: ChatRoom
+  + Message(text: String, sender: User)
+  + edit(newText: String): void
+  + delete(): void
+  + getId(): Long
+  + getText(): String
+  + getSender(): User
+  + getTimestamp(): LocalDateTime
+  + getRoom(): ChatRoom
+}
+
+class ChatRoom {
+  - id: Long
+  - name: String
+  - createdAt: LocalDateTime
+  - createdBy: User
+  - isActive: State
+  - expiryDate: LocalDateTime @nullable
+  + getId(): Long
+}
+
+enum State {
+ACTIVE,
+READ_ONLY,
+EXPIRED
+}
+
+enum Role {
+ADMIN,
+USER
+}
+
+class Membership {
+    - chatRoom : ChatRoom
+    - user : User
+    - role : Role
+    + Membership(ChatRoom chatRoom, User user, Role role)
+    + getChatRoom() : ChatRoom
+    + getUser() : User
+    + getRole() : Role
+}
+
+
+
+User "1" -- "*" Message
+ChatRoom "1" *-- "*" Message
+Message --> "1" User
+Message --> "1" ChatRoom
+ChatRoom --> "1" User
+User "1" -- "*" Membership
+Membership "*" -- "1" ChatRoom
+
+@enduml
