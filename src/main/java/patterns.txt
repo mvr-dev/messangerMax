@@ -1,0 +1,5 @@
+Subscriber-Publisher
+
+Fabrics
+
+Нужно порождать фабрики
