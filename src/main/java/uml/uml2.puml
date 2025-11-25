@@ -1,0 +1,194 @@
+@startuml
+    class UserController {
+        -UserService userService
+        +getUser(String userId) UserDTO
+        +createUser(CreateUserRequest request) UserDTO
+        +updateUserStatus(String userId, Status status) UserDTO
+    }
+
+    class MessageController {
+        -MessageService messageService
+        +sendMessage(SendMessageRequest request) MessageDTO
+        +getChatMessages(String chatId) List<MessageDTO>
+        +deleteMessage(String messageId) void
+    }
+
+    class ChatController {
+        -ChatService chatService
+        +createChat(CreateChatRequest request) ChatDTO
+        +getUserChats(String userId) List<ChatDTO>
+        +addUserToChat(String chatId, String userId) ChatDTO
+    }
+
+
+    interface UserService {
+
+        +getUserById(String userId) User
+        +createUser(User user) User
+        +updateUserStatus(String userId, Status status) User
+        +findUsersByUsername(String username) List<User>
+    }
+
+    interface MessageService {
+
+        +sendMessage(Message message) Message
+        +getMessagesByChat(String chatId) List<Message>
+        +deleteMessage(String messageId) void
+        +editMessage(String messageId, String newContent) Message
+    }
+
+    interface ChatService {
+
+        +createChat(Chat chat) Chat
+        +getChatById(String chatId) Chat
+        +getUserChats(String userId) List<Chat>
+        +addUserToChat(String chatId, String userId) Chat
+    }
+
+    class UserServiceImpl {
+        -UserRepository userRepository
+        -UserBuilder userBuilder
+        +getUserById(String userId) User
+        +createUser(User user) User
+        +updateUserStatus(String userId, Status status) User
+    }
+
+    class MessageServiceImpl {
+        -MessageRepository messageRepository
+        -MessageFactory messageFactory
+        -ChatRepository chatRepository
+        +sendMessage(Message message) Message
+        +getMessagesByChat(String chatId) List<Message>
+        +deleteMessage(String messageId) void
+    }
+
+    class ChatServiceImpl {
+        -ChatRepository chatRepository
+        -UserRepository userRepository
+        +createChat(Chat chat) Chat
+        +getChatById(String chatId) Chat
+        +getUserChats(String userId) List<Chat>
+    }
+
+    interface UserRepository {
+        +findById(String userId) Optional<User>
+        +save(User user) User
+        +deleteById(String userId) void
+        +findByUsername(String username) Optional<User>
+        +findByStatus(Status status) List<User>
+    }
+
+    interface MessageRepository {
+        +findById(String messageId) Optional<Message>
+        +save(Message message) Message
+        +deleteById(String messageId) void
+        +findByChatId(String chatId) List<Message>
+        +findBySenderId(String senderId) List<Message>
+    }
+
+    interface ChatRepository {
+        +findById(String chatId) Optional<Chat>
+        +save(Chat chat) Chat
+        +deleteById(String chatId) void
+        +findByUserId(String userId) List<Chat>
+    }
+
+    class JpaUserRepository {
+        -EntityManager entityManager
+        +findById(String userId) Optional<User>
+        +save(User user) User
+        +findByUsername(String username) Optional<User>
+    }
+
+    class InMemoryMessageRepository {
+        -Map<String, Message> messages
+        +findById(String messageId) Optional<Message>
+        +save(Message message) Message
+        +findByChatId(String chatId) List<Message>
+    }
+
+    class UserDTO {
+        -String userId
+        -String username
+        -String email
+        -Status status
+    }
+
+    class MessageDTO {
+        -String messageId
+        -String content
+        -UserDTO sender
+        -Date timestamp
+        -MessageType type
+    }
+
+    class ChatDTO {
+        -String chatId
+        -List<UserDTO> participants
+        -List<MessageDTO> messages
+    }
+
+    class CreateUserRequest {
+        -String username
+        -String email
+        -String password
+    }
+
+    class SendMessageRequest {
+        -String chatId
+        -String content
+        -MessageType messageType
+        -String senderId
+    }
+
+    class UserBuilder {
+            -String userId
+            -String username
+            -String email
+            -String phoneNumber
+            -String avatarUrl
+            -Status status
+            +setUserId(String userId) UserBuilder
+            +setUsername(String username) UserBuilder
+            +setEmail(String email) UserBuilder
+            +setPhoneNumber(String phoneNumber) UserBuilder
+            +setAvatarUrl(String avatarUrl) UserBuilder
+            +setStatus(Status status) UserBuilder
+            +build() User
+        }
+
+        interface MessageFactory {
+                +createMessage(MessageType type, String content, User sender)* Message
+            }
+
+        class TextMessageFactory {
+                +createMessage(MessageType type, String content, User sender) Message
+            }
+
+    UserController --> UserService
+    MessageController --> MessageService
+    ChatController --> ChatService
+
+    UserService <|.. UserServiceImpl
+    MessageService <|.. MessageServiceImpl
+    ChatService <|.. ChatServiceImpl
+
+    UserServiceImpl --> UserRepository
+    UserServiceImpl --> UserBuilder
+    MessageServiceImpl --> MessageRepository
+    MessageServiceImpl --> MessageFactory
+    MessageServiceImpl --> ChatRepository
+    ChatServiceImpl --> ChatRepository
+    ChatServiceImpl --> UserRepository
+
+    UserRepository <|.. JpaUserRepository
+    MessageRepository <|.. InMemoryMessageRepository
+
+    UserController --> UserDTO
+    MessageController --> MessageDTO
+    ChatController --> ChatDTO
+    UserController --> CreateUserRequest
+    MessageController --> SendMessageRequest
+
+    TextMessageFactory --> MessageFactory
+    @enduml

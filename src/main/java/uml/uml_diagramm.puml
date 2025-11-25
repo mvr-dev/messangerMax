@@ -1,0 +1,235 @@
+@startuml
+
+package Models {
+    class User {
+        - id : Long
+        - username : String
+        - email : String
+        - password_hash : String
+        + getId() : Long
+        + getUsername() : String
+        + setUsername(username: String) : void
+        + getEmail() : String
+        + setEmail(email: String) : void
+    }
+
+    class ChatRoom {
+        - id : Long
+        - name : String
+        - state : RoomState
+        - expiryDate : LocalDateTime
+        + getId() : Long
+        + getName() : String
+        + setName(name: String) : void
+        + getState() : RoomState
+        + setState(state: RoomState) : void
+    }
+
+    enum RoomState {
+        ACTIVE
+        INACTIVE
+        EXPIRED
+    }
+
+    class Membership {
+        - user_id : Long
+        - chat_id : Long
+        - status : MembershipStatus
+        - joinedAt : LocalDateTime
+        + getStatus() : MembershipStatus
+        + setStatus(status: MembershipStatus) : void
+    }
+
+    enum MembershipStatus {
+        ACTIVE
+        BANNED
+        LEFT
+    }
+
+    interface Message {
+        + send(chatRoom: ChatRoom) : boolean
+        + getContent() : String
+        + getTimestamp() : LocalDateTime
+    }
+
+    class TextMessage {
+        - id : Long
+        - chat_id : Long
+        - sender_id : Long
+        - text : String
+        - timestamp : LocalDateTime
+        + getText() : String
+        + setText(text: String) : void
+    }
+
+    class ImageMessage {
+        - id : Long
+        - chat_id : Long
+        - sender_id : Long
+        - imageUrl : String
+        - caption : String
+        - timestamp : LocalDateTime
+        + getImageUrl() : String
+        + getCaption() : String
+    }
+}
+
+Message <|.. TextMessage
+Message <|.. ImageMessage
+User  *--  Membership
+ChatRoom  *--  Membership
+User  *--  Message
+ChatRoom  *--  TextMessage
+
+package Controllers {
+    class UserController {
+        - userService: IUserService
+        + createUser(userDto: UserDTO) : ResponseEntity<User>
+        + getUser(id: Long) : ResponseEntity<User>
+        + updateUser(id: Long, userDto: UserDTO) : ResponseEntity<User>
+    }
+
+    class ChatRoomController {
+        - chatRoomService: IChatRoomService
+        + createChatRoom(chatRoomDto: ChatRoomDTO) : ResponseEntity<ChatRoom>
+        + getChatRoom(id: Long) : ResponseEntity<ChatRoom>
+        + addUserToChat(chatId: Long, userId: Long) : ResponseEntity<Void>
+    }
+
+    class MessageController {
+        - messageService: IMessageService
+        + sendMessage(messageDto: MessageDTO) : ResponseEntity<Message>
+        + getChatMessages(chatId: Long) : ResponseEntity<List<Message>>
+    }
+}
+
+package Services {
+    package Interfaces {
+        interface IUserService {
+            + createUser(user: User) : User
+            + findUserById(id: Long) : Optional<User>
+            + updateUser(user: User) : User
+        }
+
+        interface IChatRoomService {
+            + createChatRoom(chatRoom: ChatRoom) : ChatRoom
+            + findChatRoomById(id: Long) : Optional<ChatRoom>
+            + addUserToChatRoom(chatId: Long, userId: Long) : boolean
+        }
+
+        interface IMessageService {
+            + sendMessage(message: Message) : Message
+            + getMessagesByChatId(chatId: Long) : List<Message>
+        }
+    }
+
+    package Implementations {
+        class UserService {
+            - userRepository: IUserRepository
+            + createUser(user: User) : User
+            + findUserById(id: Long) : Optional<User>
+            + updateUser(user: User) : User
+        }
+
+        class ChatRoomService {
+            - chatRoomRepository: IChatRoomRepository
+            - userRepository: IUserRepository
+            + createChatRoom(chatRoom: ChatRoom) : ChatRoom
+            + findChatRoomById(id: Long) : Optional<ChatRoom>
+            + addUserToChatRoom(chatId: Long, userId: Long) : boolean
+        }
+
+        class MessageService {
+            - messageRepository: IMessageRepository
+            + sendMessage(message: Message) : Message
+            + getMessagesByChatId(chatId: Long) : List<Message>
+        }
+    }
+}
+
+package Repositories {
+    package Interfaces {
+        interface IUserRepository {
+            + save(user: User) : User
+            + findById(id: Long) : Optional<User>
+            + findByUsername(username: String) : Optional<User>
+        }
+
+        interface IChatRoomRepository {
+            + save(chatRoom: ChatRoom) : ChatRoom
+            + findById(id: Long) : Optional<ChatRoom>
+        }
+
+        interface IMessageRepository {
+            + save(message: Message) : Message
+            + findByChatId(chatId: Long) : List<Message>
+        }
+    }
+
+    package Implementations {
+        class UserRepository {
+            + save(user: User) : User
+            + findById(id: Long) : Optional<User>
+            + findByUsername(username: String) : Optional<User>
+        }
+
+        class ChatRoomRepository {
+            + save(chatRoom: ChatRoom) : ChatRoom
+            + findById(id: Long) : Optional<ChatRoom>
+        }
+
+        class MessageRepository {
+            + save(message: Message) : Message
+            + findByChatId(chatId: Long) : List<Message>
+        }
+    }
+}
+
+package Patterns {
+    package Builder {
+        class ChatRoomBuilder {
+            - id: Long
+            - name: String
+            - state: RoomState
+            - expiryDate: LocalDateTime
+            + withId(id: Long) : ChatRoomBuilder
+            + withName(name: String) : ChatRoomBuilder
+            + withState(state: RoomState) : ChatRoomBuilder
+            + withExpiryDate(expiryDate: LocalDateTime) : ChatRoomBuilder
+            + build() : ChatRoom
+        }
+    }
+
+    package Factory {
+        interface MessageFactory {
+            + createTextMessage(senderId: Long, chatId: Long, text: String) : TextMessage
+            + createImageMessage(senderId: Long, chatId: Long, imageUrl: String, caption: String) : ImageMessage
+        }
+
+        class ConcreteMessageFactory {
+            + createTextMessage(senderId: Long, chatId: Long, text: String) : TextMessage
+            + createImageMessage(senderId: Long, chatId: Long, imageUrl: String, caption: String) : ImageMessage
+        }
+    }
+}
+
+Controllers.UserController --> Services.Interfaces.IUserService
+Controllers.ChatRoomController --> Services.Interfaces.IChatRoomService
+Controllers.MessageController --> Services.Interfaces.IMessageService
+
+Services.Implementations.UserService --> Repositories.Interfaces.IUserRepository
+Services.Implementations.ChatRoomService --> Repositories.Interfaces.IChatRoomRepository
+Services.Implementations.ChatRoomService --> Repositories.Interfaces.IUserRepository
+Services.Implementations.MessageService --> Repositories.Interfaces.IMessageRepository
+
+Repositories.Implementations.UserRepository ..|> Repositories.Interfaces.IUserRepository
+Repositories.Implementations.ChatRoomRepository ..|> Repositories.Interfaces.IChatRoomRepository
+Repositories.Implementations.MessageRepository ..|> Repositories.Interfaces.IMessageRepository
+
+Services.Implementations.UserService ..|> Services.Interfaces.IUserService
+Services.Implementations.ChatRoomService ..|> Services.Interfaces.IChatRoomService
+Services.Implementations.MessageService ..|> Services.Interfaces.IMessageService
+
+Patterns.Factory.ConcreteMessageFactory ..|> Patterns.Factory.MessageFactory
+
+@enduml

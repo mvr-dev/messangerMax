@@ -12,6 +12,11 @@ import java.util.Objects;
 @Getter
 @Table(name = "chatrooms")
 public class ChatRoom {
+
+    public ChatRoom() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
